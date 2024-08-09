@@ -21,13 +21,24 @@ class Homepage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Olá! 👋',
-              style: GoogleFonts.montserrat(
-                textStyle: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
-              ),
+            Row(
+              children: [
+                Text(
+                  //👋
+                  'Olá!',
+                  style: GoogleFonts.montserrat(
+                    textStyle: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w800),
+                  ),
+                ),
+                const SizedBox(width: 5),
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: Image(
+                      image: AssetImage('assets/images/hand-wave-emoji.png')),
+                )
+              ],
             ),
             // USER ADDRESS DATA
             const Row(
