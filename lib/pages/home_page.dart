@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:panfleto_app/utils/consts.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -8,8 +9,26 @@ class Homepage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(),
-      body: const Center(
-        child: Text('Hello World!'),
+      body: Center(
+        child: homeBody(),
+      ),
+    );
+  }
+
+  Widget homeBody() {
+    return Padding(
+      padding: defaultPad,
+      child: Column(
+        children: [
+          Container(
+            width: 284,
+            height: 134,
+            decoration: BoxDecoration(
+              color: Colors.grey[400],
+              borderRadius: BorderRadius.circular(20),
+            ),
+          )
+        ],
       ),
     );
   }
