@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:panfleto_app/data/enum/category.dart';
 import 'package:panfleto_app/data/model/market_model.dart';
+import 'package:panfleto_app/pages/home/market/widgets/market_list_tile_widget.dart';
 import 'package:panfleto_app/pages/market_details/state/category_market_content_state.dart';
 import 'package:provider/provider.dart';
 
@@ -54,7 +55,28 @@ class MarketDetailsPage extends StatelessWidget {
                                   style: const TextStyle(fontSize: 20),
                                 ),
                               ),
-                              Text(market.address),
+                              FutureBuilder<String>(
+                                future: getMarketAddress(
+                                    market.latitude, market.longitude),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Text('Carregando endereço...');
+                                  } else if (snapshot.hasError) {
+                                    return const Text(
+                                        'Erro ao carregar endereço');
+                                  } else {
+                                    return SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.5,
+                                      child: Text(
+                                          overflow: TextOverflow.clip,
+                                          snapshot.data ??
+                                              'Endereço não disponível'),
+                                    );
+                                  }
+                                },
+                              ),
                               const Text('0.0km'),
                               const SizedBox(
                                 height: 10,
@@ -281,7 +303,7 @@ class _CategoryMarketContentState extends State<CategoryMarketContent> {
             return const Divider();
           },
         );
-         case 'Higiene':
+      case 'Higiene':
         final higiene = state.products
             .where((product) =>
                 product.productCategories?.contains(Category.HYGIENE) ?? false)
@@ -302,18 +324,19 @@ class _CategoryMarketContentState extends State<CategoryMarketContent> {
             return const Divider();
           },
         );
-         case 'Frutas e Legumes':
+      case 'Frutas e Legumes':
         final fruits = state.products
             .where((product) =>
                 product.productCategories?.contains(Category.FRUITS) ?? false)
             .toList();
-          
-        final vegetables = state.products.where((product) =>
-                product.productCategories?.contains(Category.VEGETABLES) ?? false)
+
+        final vegetables = state.products
+            .where((product) =>
+                product.productCategories?.contains(Category.VEGETABLES) ??
+                false)
             .toList();
 
-          final fav = fruits + vegetables;
-
+        final fav = fruits + vegetables;
 
         return ListView.separated(
           itemCount: fav.length,
@@ -357,7 +380,6 @@ IconData categoryToIcon(Category category) {
       return Icons.local_bar;
     case Category.LACTIC:
       return Icons.local_drink;
-
   }
 }
 

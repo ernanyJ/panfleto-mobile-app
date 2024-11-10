@@ -9,7 +9,6 @@ part 'market_model.g.dart';
 class MarketModel {
   final int id;
   final String name;
-  final String address;
   final String imgUrl;
 
   final DateTime? openingTimeMonday;
@@ -35,6 +34,9 @@ class MarketModel {
 
   final List<OfferModel> offers;
 
+  final String latitude;
+  final String longitude;
+
   MarketModel(
     this.openingTimeMonday,
     this.closingTimeMonday,
@@ -52,9 +54,10 @@ class MarketModel {
     this.closingTimeSunday, {
     required this.id,
     required this.name,
-    required this.address,
     required this.imgUrl,
     required this.offers,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory MarketModel.fromJson(Map<String, dynamic> json) =>

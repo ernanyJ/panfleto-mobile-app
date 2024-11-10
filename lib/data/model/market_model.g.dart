@@ -37,18 +37,18 @@ MarketModel _$MarketModelFromJson(Map<String, dynamic> json) => MarketModel(
           json['closingTimeSunday'], const TimeOnlyConverter().fromJson),
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
-      address: json['address'] as String,
       imgUrl: json['imgUrl'] as String,
       offers: (json['offers'] as List<dynamic>)
           .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      latitude: json['latitude'] as String,
+      longitude: json['longitude'] as String,
     );
 
 Map<String, dynamic> _$MarketModelToJson(MarketModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'address': instance.address,
       'imgUrl': instance.imgUrl,
       'openingTimeMonday': _$JsonConverterToJson<String, DateTime>(
           instance.openingTimeMonday, const TimeOnlyConverter().toJson),
@@ -79,6 +79,8 @@ Map<String, dynamic> _$MarketModelToJson(MarketModel instance) =>
       'closingTimeSunday': _$JsonConverterToJson<String, DateTime>(
           instance.closingTimeSunday, const TimeOnlyConverter().toJson),
       'offers': instance.offers,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

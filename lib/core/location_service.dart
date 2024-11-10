@@ -1,5 +1,6 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as loc;
+import 'package:panfleto_app/core/persistence_service.dart';
 
 class LocationService {
   // Verifica se a permissão foi concedida
@@ -13,7 +14,6 @@ class LocationService {
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
-        print('Serviço de localização não habilitado.');
         return null;
       }
     }
@@ -23,35 +23,32 @@ class LocationService {
     if (permissionGranted == loc.PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
       if (permissionGranted != loc.PermissionStatus.granted) {
-        print('Permissão de localização negada.');
         return null;
       }
     }
 
     // Obtém a localização
     final loc.LocationData locationData = await location.getLocation();
-    return getAddress(locationData.latitude!, locationData.longitude!);
+    PersistenceService.saveLatitude(locationData.latitude!);
+    PersistenceService.saveLongitude(locationData.longitude!);
 
+    return getAddress(locationData.latitude!, locationData.longitude!);
   }
 
   static Future<String> getAddress(double latitude, double longitude) async {
     try {
       // Obtém a lista de placemarks a partir das coordenadas
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
 
       // Se houver algum resultado, pega o primeiro
       Placemark place = placemarks[0];
-      
 
       // Monta o endereço completo
-      String address = '${place.street}, ${place.name}';
+      String address = '${place.street}, ${place.subLocality}';
       return address;
     } catch (e) {
-      print('Erro ao obter o endereço: $e');
       return 'Endereço não disponível';
     }
   }
-
-
 }
-

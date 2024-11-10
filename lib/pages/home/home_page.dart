@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:panfleto_app/core/location_service.dart';
 import 'package:panfleto_app/core/persistence_service.dart';
-import 'package:panfleto_app/enum/loading_state.dart';
 import 'package:panfleto_app/pages/home/market/widgets/home_body.dart';
 
 class Homepage extends StatefulWidget {
@@ -13,7 +12,6 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  LoadingState _loadingState = LoadingState.loading;
   @override
   Widget build(BuildContext context) {
     checkAddressExists(context);
@@ -128,8 +126,6 @@ class _HomepageState extends State<Homepage> {
   }
 
   void checkAddressExists(BuildContext context) {
-    bool isLoading = false;
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String? address = await PersistenceService.getAddress();
       if (address == null || address.isEmpty) {
@@ -155,9 +151,7 @@ class _HomepageState extends State<Homepage> {
                     LocationService.getLocation().then((value) {
                       if (value != null) {
                         PersistenceService.saveAddress(value);
-                        setState(() {
-                          
-                        });
+                        setState(() {});
                       }
                     });
                   },
