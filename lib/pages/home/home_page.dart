@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:panfleto_app/core/location_service.dart';
 import 'package:panfleto_app/core/persistence_service.dart';
+import 'package:panfleto_app/pages/favorites/favorites_page.dart';
 import 'package:panfleto_app/pages/home/market/widgets/home_body.dart';
 
 class Homepage extends StatefulWidget {
@@ -106,8 +107,15 @@ class _HomepageState extends State<Homepage> {
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: IconButton(
-              icon: const Icon(Icons.favorite_outline, size: 25),
-              onPressed: () {},
+              icon: const Icon(Icons.favorite, size: 25),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FavoritesPage(),
+                  ),
+                );
+              },
             ),
           ),
           Padding(

@@ -16,6 +16,7 @@ class HomeBody extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => HomeState(),
+          
         ),
       ],
       child: const Padding(

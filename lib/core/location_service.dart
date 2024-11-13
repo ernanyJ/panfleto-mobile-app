@@ -1,6 +1,8 @@
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart' as loc;
 import 'package:panfleto_app/core/persistence_service.dart';
+import 'package:panfleto_app/data/model/market_model.dart';
 
 class LocationService {
   // Verifica se a permissão foi concedida
@@ -51,4 +53,31 @@ class LocationService {
       return 'Endereço não disponível';
     }
   }
+
+
+static Future<double> calculateDistance(MarketModel market) async {
+  final userLat = await PersistenceService.getLatitude();
+  final userLong = await PersistenceService.getLongitude();
+  final marketLat = double.tryParse(market.latitude);
+  final marketLong = double.tryParse(market.longitude);
+
+  if (userLat == null ||
+      userLong == null ||
+      marketLat == null ||
+      marketLong == null) {
+    return 0;
+  }
+
+  return Geolocator.distanceBetween(userLat, userLong, marketLat, marketLong) /
+      1000;
+}
+
+Future<String> getMarketAddress(String latitude, String longitude) async {
+  if (latitude.isEmpty || longitude.isEmpty) {
+    return 'Endereço não disponível';
+  }
+  return await LocationService.getAddress(
+      double.tryParse(latitude) ?? 0, double.tryParse(longitude) ?? 0);
+}
+
 }

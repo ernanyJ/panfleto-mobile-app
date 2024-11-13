@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:panfleto_app/core/location_service.dart';
 import 'package:panfleto_app/data/enum/category.dart';
 import 'package:panfleto_app/data/model/market_model.dart';
-import 'package:panfleto_app/pages/home/market/widgets/market_list_tile_widget.dart';
 import 'package:panfleto_app/pages/market_details/state/category_market_content_state.dart';
+import 'package:panfleto_app/pages/market_details/state/favorites_state.dart';
 import 'package:provider/provider.dart';
 
 class MarketDetailsPage extends StatelessWidget {
@@ -12,8 +13,12 @@ class MarketDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CategoryMarketContentState()..init(market.id),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (_) => CategoryMarketContentState()..init(market.id)),
+       
+      ],
       child: Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -31,12 +36,17 @@ class MarketDetailsPage extends StatelessWidget {
                         children: [
                           // imagem do m
                           // ercado
-                          Container(
-                            width: 120,
-                            height: 120,
-                            decoration: const BoxDecoration(
-                              color: Colors.grey,
-                              shape: BoxShape.circle,
+                          Hero(
+                            tag: 'marketImage${market.id}',
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: const BoxDecoration(
+                                color: Colors.transparent,
+                                shape: BoxShape.circle,
+                              ),
+                              child:
+                                  ClipOval(child: Image.network(market.imgUrl)),
                             ),
                           ),
                         ],
@@ -56,7 +66,7 @@ class MarketDetailsPage extends StatelessWidget {
                                 ),
                               ),
                               FutureBuilder<String>(
-                                future: getMarketAddress(
+                                future: LocationService().getMarketAddress(
                                     market.latitude, market.longitude),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
@@ -77,7 +87,23 @@ class MarketDetailsPage extends StatelessWidget {
                                   }
                                 },
                               ),
-                              const Text('0.0km'),
+                              FutureBuilder<double>(
+                                future:
+                                    LocationService.calculateDistance(market),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Text(
+                                        'Calculando distância...');
+                                  } else if (snapshot.hasError) {
+                                    return const Text(
+                                        'Erro ao calcular distância');
+                                  } else {
+                                    return Text(
+                                        '${snapshot.data?.toStringAsFixed(2) ?? '0.00'} km');
+                                  }
+                                },
+                              ),
                               const SizedBox(
                                 height: 10,
                               ),
@@ -235,6 +261,7 @@ class _CategoryMarketContentState extends State<CategoryMarketContent> {
 
   @override
   Widget build(BuildContext context) {
+    final favorites = Provider.of<FavoritesState>(context);
     final state = Provider.of<CategoryMarketContentState>(context);
     switch (widget.category) {
       case 'Ofertas':
@@ -256,6 +283,22 @@ class _CategoryMarketContentState extends State<CategoryMarketContent> {
                   ),
                 ],
               ),
+              trailing: IconButton(
+                  onPressed: () async {
+                    favorites.favoriteOffers
+                            .contains(widget.market.offers[index].id.toString())
+                        ? favorites.removeFavoriteOffer(
+                            widget.market.offers[index].id.toString())
+                        : favorites.addFavoriteOffer(
+                            widget.market.offers[index].id.toString());
+                  },
+                  icon: favorites.isFavoriteOffer(
+                          widget.market.offers[index].id.toString())
+                      ? const Icon(
+                          Icons.favorite,
+                          color: Colors.red,
+                        )
+                      : const Icon(Icons.favorite_border)),
               leading: Icon(categoryToIcon(
                   widget.market.offers[index].includedCategories.first)),
               onTap: () {},
@@ -271,7 +314,8 @@ class _CategoryMarketContentState extends State<CategoryMarketContent> {
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(state.products[index].productName),
-              subtitle: Text(state.products[index].price.toString()),
+              subtitle:
+                  Text('R\$ ${state.products[index].price.toStringAsFixed(2)}'),
               leading: Icon(categoryToIcon(
                   state.products[index].productCategories?.first ??
                       Category.STAPLES)),
@@ -285,7 +329,8 @@ class _CategoryMarketContentState extends State<CategoryMarketContent> {
       case 'Frios':
         final frios = state.products
             .where((product) =>
-                product.productCategories?.contains(Category.STAPLES) ?? false)
+                product.productCategories?.contains(Category.REFRIGERATED) ??
+                false)
             .toList();
 
         return ListView.separated(
